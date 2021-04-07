@@ -177,7 +177,7 @@ public class OnePiece {
             //exportar grafo a imagen
             Graphviz.fromGraph(r).height(1080).width(2048).render(Format.PNG).toFile(new File("resultado/onepiece" + i + ".png"));
 
-            System.out.printf("El camino mas corto de %s hasta %s es: [%s]\n", start, end, formatPath(path));
+            //System.out.printf("El camino mas corto de %s hasta %s es: [%s]\n", start, end, formatPath(path));
             for (Integer integer : path) {
                 System.out.print(nombreCiudad.get(integer));
             }
