@@ -107,24 +107,50 @@ public class OnePiece {
         return path.stream().map(Object::toString).collect(Collectors.joining(" -> "));
     }
 
+    private static void dibujarGrafo(MutableGraph r, OnePiece solver, List<Integer> path, TreeMap<Integer, String> nombreCiudad, int cont) throws IOException {
+        r.use((gr, ctx) -> {
+            // recorre todos los nodos
+            for (int from = 0; from < solver.graph.size(); from++) {
+                // recorre todas las aristas de cada nodo
+                for (int j = 0; j < solver.graph.get(from).size(); j++) {
+                    int to = solver.graph.get(from).get(j).to;
+                    //se define el estilo de cada nodo
+                    if (path.contains(from)) {
+                        mutNode(nombreCiudad.get(from)).add(Color.BLUEVIOLET.fill(), Style.lineWidth(5), Style.FILLED);
+                        //se define el estilo de cada arista
+                        if ((path.indexOf(from) + 1) == path.indexOf(to)) {
+                            linkAttrs().add(Style.BOLD, Color.YELLOW);
+                        } else {
+                            linkAttrs().add(Color.BLACK);
+                        }
+                    } else {
+                        mutNode(nombreCiudad.get(from)).add(Color.WHITE.fill(), Style.lineWidth(2), Style.FILLED);
+                        linkAttrs().add(Color.BLACK);
+                    }
+                    //crea arrista
+                    mutNode(nombreCiudad.get(from)).addLink(mutNode(nombreCiudad.get(to)));
+                }
+            }
+        });
+        //exportar grafo a imagen
+        Graphviz.fromGraph(r).height(1080).width(2048).render(Format.PNG).toFile(new File("resultado/onepiece" + cont + ".png"));
+    }
+
     public static void main(String[] args) throws IOException {
         Scanner in = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
         int size = in.nextInt();
         int edges = in.nextInt();
         int consultas = in.nextInt();
-        int cont = 0;
-        String origen, start;
-        String destino, end;
 
         //inicializa el grafo
         List<List<Edge>> graph = createEmptyGraph(size);
+
+        int cont = 0;
         TreeMap<String, Integer> numeroCiudad = new TreeMap<>();
         TreeMap<Integer, String> nombreCiudad = new TreeMap<>();
-
-
         for (int i = 0; i < edges; i++) {
-            origen = in.next();
-            destino = in.next();
+            String origen = in.next();
+            String destino = in.next();
 
             if (!numeroCiudad.containsKey(origen)) {
                 numeroCiudad.put(origen, cont);
@@ -139,45 +165,23 @@ public class OnePiece {
             }
             addUnweightedUndirectedEdge(graph, numeroCiudad.get(origen), numeroCiudad.get(destino));
         }
-        OnePiece solver;
-        solver = new OnePiece(graph);
+
+        OnePiece solver = new OnePiece(graph);
 
         for (int i = 0; i < consultas; i++) {
-            start = in.next();
-            end = in.next();
+            String start = in.next();
+            String end = in.next();
             List<Integer> path = solver.reconstructPath(numeroCiudad.get(start), numeroCiudad.get(end));
 
-            MutableGraph r = mutGraph("onepiece").setDirected(true).use((gr, ctx) -> {
-                // recorre todos los nodos
-                for (int j = 0; j < graph.size(); j++) {
-                    // recorre todas las conexiones de cada nodo
-                    if (!path.contains(j)) {
-                        //estilo del nodo que no está en el camino
-                        mutNode(nombreCiudad.get(j)).add(Color.WHITE.fill());
-                    } else {
-                        //estilo del nodo que está en el camino
-                        mutNode(nombreCiudad.get(j)).add(Color.BLUEVIOLET.fill());
-                    }
+            //Instancia un objeto MutableGraph
+            MutableGraph r = mutGraph("one_piece");
+            // TRUE: Arista en forma de flecha.
+            // FALSE: una linea normal
+            r.setDirected(true);
 
-                    for (int k = 0; k < graph.get(j).size(); k++) {
-                        if ((path.contains(graph.get(j).get(k).from) && path.contains(graph.get(j).get(k).to)) && ((path.indexOf(graph.get(j).get(k).from) + 1) == path.indexOf(graph.get(j).get(k).to))) {
-                            //Estilo de las aristas que estan en el camino
-                            linkAttrs().add(Style.BOLD, Color.YELLOW);
-                        } else {
-                            //Estilo de las aristas que no estan en el camino
-                            linkAttrs().add(Style.BOLD, Color.BLACK);
-                        }
-                        //crea arrista
-                        mutNode(nombreCiudad.get(graph.get(j).get(k).from)).addLink(mutNode(nombreCiudad.get(graph.get(j).get(k).to)));
-                    }
-                }
-            });
-
-            r.graphAttrs().add(Rank.dir(TOP_TO_BOTTOM), Color.WHITE.gradient(Color.rgb("888888")).background().angle(90)).nodeAttrs().add().nodes().forEach(node -> node.add(Color.named(node.name().toString()), Style.lineWidth(2), Style.FILLED));
-            //exportar grafo a imagen
-            Graphviz.fromGraph(r).height(1080).width(2048).render(Format.PNG).toFile(new File("resultado/onepiece" + i + ".png"));
-
-            //System.out.printf("El camino mas corto de %s hasta %s es: [%s]\n", start, end, formatPath(path));
+            r.graphAttrs().add(Rank.dir(TOP_TO_BOTTOM), Color.RED.gradient(Color.rgb("888888")).background().angle(90));
+            dibujarGrafo(r, solver, path, nombreCiudad, i);
+            System.out.printf("El camino mas corto de %s hasta %s es: [%s]\n", start, end, formatPath(path));
             for (Integer integer : path) {
                 System.out.print(nombreCiudad.get(integer));
             }
