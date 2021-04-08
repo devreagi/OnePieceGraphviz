@@ -36,4 +36,7 @@ MedellinTransilvaniaPisa<br/>
 BogotaMedellinTransilvaniaPisaFlorencia<br/>
 AthensVeniceMedellinGenoa<br/>
 
-## Grafo resultante
+## Ejemplo de Grafo resultante
+![Medellin -> Pisa](https://github.com/devreagi/OnePieceGraphviz/blob/aa1eb9fb73a2d38b5f8ee9d9fc06d5ca5f60f186/resultado/onepiece0.png)
+![Bogotá -> Florencia](https://github.com/devreagi/OnePieceGraphviz/blob/aa1eb9fb73a2d38b5f8ee9d9fc06d5ca5f60f186/resultado/onepiece1.png)
+![Athens -> Genoa](https://github.com/devreagi/OnePieceGraphviz/blob/aa1eb9fb73a2d38b5f8ee9d9fc06d5ca5f60f186/resultado/onepiece2.png)
